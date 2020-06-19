@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{%- block title -%}
+        &ThinSpace; Log In    
+{%- endblock title -%}
+
+{% block content %}
+<div class="center-screen">
+    <div class="container bg-white-container col-md-3 center">
+        <form action="#" method="POST" class="col-md-10">
+            <h1 class="mb-3 text-center">HATtEr</h1>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" class="form-control" id="username" aria-describedby="username">
+              </div>
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password">
+              </div>
+              <button type="submit" class="btn btn-secondary btn-block">Let's hate!</button>
+              <div class="mt-3 text-center">
+                  <small>I don't have an account, and I wanna <a href="{{ url_for('main.signin') }}">Hatte!</a></small>
+              </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}
