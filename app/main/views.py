@@ -12,3 +12,7 @@ def login():
 @main.route("/signin")
 def signin():
     return render_template("signin.html")
+
+@main.route("/user/<user>")
+def user(user):
+    return render_template("user.html", user=user)
