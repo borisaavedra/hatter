@@ -1,4 +1,6 @@
 from . import main
+from .. import db 
+from ..models import Users, Hattes, Invitations, Relations
 from flask import render_template, redirect, url_for
 
 @main.route("/")
