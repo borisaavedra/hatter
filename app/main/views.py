@@ -1,10 +1,11 @@
 from . import main
 from ..models import db, Users, Hattes, Codes, Relations
-from flask import render_template, redirect, url_for, request, flash
+from flask import render_template, redirect, url_for, request, flash, session
 from sqlalchemy.exc import IntegrityError
 
-@main.route("/")
+@main.route("/", methods=["GET", "POST"])
 def index():
+    session.clear()
     return redirect(url_for(".login"))
 
 @main.route("/login", methods=["POST", "GET"])
@@ -17,6 +18,8 @@ def login():
         user_db = Users.query.filter_by(username=username).first()
 
         if user_db is not None and user_db.verify_password(login_pass):
+
+            session["user"] = user_db.id
             
             return redirect(url_for(".user", username=username))
 
@@ -67,16 +70,43 @@ def signin():
 
     return render_template("signin.html")
 
-@main.route("/user/<username>")
+@main.route("/user/<username>", methods=["POST", "GET"])
 def user(username):
 
-    user = Users.query.filter_by(username=username).first()
+    if "user" in session:
 
-    context = {
-        "name": user.name,
-        "username": username,
-        "avatar_url": user.avatar_url,
-        "bio": user.bio
-    }
+        if request.method == "POST":
+  
+            name = request.form["name"]
+            bio = request.form["bio"]
+            avatar_url = request.form["avatar_url"]
 
-    return render_template("user.html", **context)
+            user_toedit = Users.query.filter_by(username=username).first()
+
+            user_toedit.name = name
+            user_toedit.bio = bio
+            user_toedit.avatar_url = avatar_url
+
+            try:
+
+                db.session.commit()
+                flash("Account edited", "success")
+                return redirect(url_for(".user", username=username))
+
+            except:
+
+                db.session.rollback()
+                flash("Somethog went wrong 😯", "danger")
+                return redirect(url_for(".user", username=username))
+
+        user = Users.query.filter_by(username=username).first()
+        context = {
+            "name": user.name,
+            "username": username,
+            "avatar_url": user.avatar_url,
+            "bio": user.bio
+        }
+
+        return render_template("user.html", **context)
+    else:
+        return redirect(url_for(".login"))
