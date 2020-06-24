@@ -75,36 +75,68 @@ def user(username):
 
     if "user" in session:
 
+        hattes_user = Hattes.query.filter_by(user_id=session["user"]).all()
+        
+        if len(hattes_user) == 0:
+            status_msg = 0
+        else:
+            status_msg = 1
+
         if request.method == "POST":
-  
-            name = request.form["name"]
-            bio = request.form["bio"]
-            avatar_url = request.form["avatar_url"]
 
-            user_toedit = Users.query.filter_by(username=username).first()
+            if "hatte" in request.form:
 
-            user_toedit.name = name
-            user_toedit.bio = bio
-            user_toedit.avatar_url = avatar_url
+                new_message = request.form["hatte"]
+                new_message_pic = request.form["url_pic"]
 
-            try:
+                new_hatte = Hattes(
+                    message=new_message, 
+                    pic=new_message_pic, 
+                    user_id=session["user"])
 
-                db.session.commit()
-                flash("Account edited", "success")
-                return redirect(url_for(".user", username=username))
+                db.session.add(new_hatte)
 
-            except:
+                try:
+                    db.session.commit()
+                    flash("New Hatte sent 😎", "success")
+                    return redirect(url_for(".user", username=username))
+                except:
+                    db.session.rollback()
+                    flash("Something went wrong 😯 with your Hatte", "danger")
+                    return redirect(url_for(".user", username=username))
+ 
+            elif "name" in request.form:
 
-                db.session.rollback()
-                flash("Somethog went wrong 😯", "danger")
-                return redirect(url_for(".user", username=username))
+                name = request.form["name"]
+                bio = request.form["bio"]
+                avatar_url = request.form["avatar_url"]
+
+                user_toedit = Users.query.filter_by(username=username).first()
+
+                user_toedit.name = name
+                user_toedit.bio = bio
+                user_toedit.avatar_url = avatar_url
+
+                try:
+
+                    db.session.commit()
+                    flash("Account edited", "success")
+                    return redirect(url_for(".user", username=username))
+
+                except:
+
+                    db.session.rollback()
+                    flash("Something went wrong 😯", "danger")
+                    return redirect(url_for(".user", username=username))
 
         user = Users.query.filter_by(username=username).first()
         context = {
             "name": user.name,
             "username": username,
             "avatar_url": user.avatar_url,
-            "bio": user.bio
+            "bio": user.bio,
+            "status_msg": status_msg,
+            "hattes_user": hattes_user
         }
 
         return render_template("user.html", **context)

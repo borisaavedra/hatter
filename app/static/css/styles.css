@@ -6,12 +6,12 @@ html, body {
 
 .big-avatar {
     width: 20%;
-    clip-path: circle(50% at 50% 30%);
+    clip-path: circle(50% at 50% 50%);
 }
 
 .small-avatar {
     width: 100%;
-    clip-path: circle(50% at 50% 30%);
+    clip-path: circle(50% at 50% 50%);
 }
 
 .fixed {

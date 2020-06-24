@@ -21,3 +21,50 @@
     </div>
   </div>
 {%- endmacro -%}
+
+{%- macro render_card_sm(username, bio, avatar_url) -%}
+  <div class="card bg-white-container mt-3">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-2">
+          <img src="{{ avatar_url }}" class="small-avatar" alt="User Avatar">
+        </div>
+        <div class="col">
+          <h5 class="card-title">{{ username }}</h5>
+          <p class="card-text">{{ bio }}</p>
+          <div class="row hatte-footer">
+            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+            <form action="#" method="POST">
+              <button type="button" class="btn btn-outline-danger btn-sm">Wanna Hatte you!</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{%- endmacro -%}
+
+{%- macro render_card_big(username, message, avatar_url, created, pic) -%}
+<div class="card bg-white-container mt-3">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-2">
+        <img src="{{ avatar_url }}" class="small-avatar" alt="User Avatar">
+      </div>
+      <div class="col">
+        <h5 class="card-title">{{ username }}</h5>
+        <p class="card-text">{{ message }}</p>
+        {% if pic %}
+          <img src="{{ pic }}" class="card-img-top" alt="...">
+        {% endif %}
+        <div class="row hatte-footer">
+          <p class="card-text"><small class="text-muted">{{ created }}</small></p>
+          <form action="#" method="POST">
+            <button type="button" class="btn btn-outline-danger btn-sm">UnHatte</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{%- endmacro -%}

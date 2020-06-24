@@ -2,7 +2,7 @@
 {% import "macros.html" as macros %}
 
 {%- block title -%}
-        &ThinSpace; {{ username | capitalize }}    
+        &ThinSpace; {{ username }}    
 {%- endblock title -%}
 
 {% block navbar_settings %}
@@ -41,6 +41,17 @@
       </div>
   {% endcall %}
 
+  {% call macros.render_modal("Spread the Hatte","modalHatte" ,"" ,"Sent Hatte", "secondary") %}
+      <div class="form-group">
+        <label for="hatte">What's going on?</label>
+        <textarea class="form-control" name="hatte" id="hatte" rows="4" cols="50" placeholder="Write your Hatte..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="url_pic">Some pic</label>
+        <input type="url" class="form-control" name="url_pic" id="url_pic" value="{{ url_pic }}">
+      </div>
+  {% endcall %}
+
   {% call macros.render_modal("Log Out","modalLogout", "/", "Log Out", "danger") %}
       <p>Are you sure you want to log out?</p>
   {% endcall %}
@@ -50,7 +61,7 @@
             <div class="mt-3 col-3">
                 <img src="{{ avatar_url }}" class="big-avatar" alt="User Avatar">
                 <div>
-                    <h3>{{ name | capitalize }}</h3>
+                    <h3>{{ name }}</h3>
                     <p class="text-muted">{{ bio }}</p>
                         <button type="button" class="btn btn-secondary btn-sm">
                         Hatters <span class="badge badge-light">4</span>
@@ -58,7 +69,7 @@
                         <button type="button" class="btn btn-secondary btn-sm">
                         Hatted <span class="badge badge-light">21</span>
                         </button>
-                    <button class="btn btn-dark btn-block mt-3">
+                    <button class="btn btn-dark btn-block mt-3" data-toggle="modal" data-target="#modalHatte">
                         <i class="fas fa-hand-middle-finger"></i>
                         Spread Hatte!
                     </button>
@@ -66,26 +77,22 @@
             </div>
             <div class="col">
                 <h3 class="mt-3">Just the Hatte</h3>
-                <div class="card bg-white-container mt-3">
+                {% if status_msg %}
+                  {% for hatte_msg in hattes_user | reverse %}
+                    {{ macros.render_card_big(username, hatte_msg.message, avatar_url, hatte_msg.created, hatte_msg.pic) }}
+                  {% endfor %}
+                {% else %}
+                  <div class="card bg-white-container mt-3">
                     <div class="card-body">
-                      <div class="row">
-                        <div class="col-1">
-                          <img src="{{ url_for('static', filename='noun_User_3401294.svg') }}" class="small-avatar" alt="User Avatar">
-                        </div>
-                        <div class="col">
-                          <h5 class="card-title">Card title</h5>
-                          <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                          <img src="https://www.latercera.com/resizer/po-j1bboJiQanQfygG2BLcQPfWA=/900x600/smart/arc-anglerfish-arc2-prod-copesa.s3.amazonaws.com/public/XITZUK4ADZA6NBSRJYR72SYDRE.jpg" class="card-img-top" alt="...">
-                          <div class="row hatte-footer">
-                            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-                            <form action="#" method="POST">
-                              <button type="button" class="btn btn-outline-danger btn-sm">UnHatte</button>
-                            </form>
-                          </div>
-                        </div>
-                      </div>
+                        <p class="card-text">Not Hatte Yet 🙄</p>
                     </div>
                   </div>
+                {% endif %}
+               
+            </div>
+            <div class="col-4">
+              <h4 class="mt-3">New People</h4>
+              {{ macros.render_card_sm("Perla", "La mamá de tus hijos", "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSL6tKDhl_zshMAA3zcHECuVhH8mcPfsyc1smkj4p7xmkSxM0bO&usqp=CAU") }}
             </div>
         </div>
     </div>
