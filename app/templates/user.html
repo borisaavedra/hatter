@@ -64,10 +64,10 @@
                     <h3>{{ name }}</h3>
                     <p class="text-muted">{{ bio }}</p>
                         <button type="button" class="btn btn-secondary btn-sm">
-                        Hatters <span class="badge badge-light">4</span>
+                        Hatters <span class="badge badge-light">{{ no_followers }}</span>
                         </button>
                         <button type="button" class="btn btn-secondary btn-sm">
-                        Hatted <span class="badge badge-light">21</span>
+                        Hatted <span class="badge badge-light">{{ no_followeds }}</span>
                         </button>
                     <button class="btn btn-dark btn-block mt-3" data-toggle="modal" data-target="#modalHatte">
                         <i class="fas fa-hand-middle-finger"></i>
@@ -92,7 +92,11 @@
             </div>
             <div class="col-4">
               <h4 class="mt-3">New People</h4>
-              {{ macros.render_card_sm("Perla", "La mamá de tus hijos", "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSL6tKDhl_zshMAA3zcHECuVhH8mcPfsyc1smkj4p7xmkSxM0bO&usqp=CAU") }}
+              {% for user in users | reverse %}
+                {% if user.username != username %} 
+                  {{ macros.render_card_sm(user.name, user.bio, user.avatar_url, user.id) }}
+                {% endif %}
+              {% endfor %}
             </div>
         </div>
     </div>

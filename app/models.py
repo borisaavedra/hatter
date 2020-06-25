@@ -10,7 +10,7 @@ class Users(db.Model):
     name = db.Column(db.String(200), nullable=False)
     username = db.Column(db.String(200), nullable=False, unique=True)
     password_hash = db.Column(db.String(200))
-    avatar_url = db.Column(db.Text, default="https://imgur.com/NVGmwQ4")
+    avatar_url = db.Column(db.Text, default="https://simpleicon.com/wp-content/uploads/user1.png")
     bio = db.Column(db.String(200), default="I'm lazy so I don't have a bio... 😐")
     hatteses = db.relationship("Hattes", backref="users", lazy=True)
     relationses = db.relationship("Relations", backref="users", lazy=True)

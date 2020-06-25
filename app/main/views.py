@@ -74,17 +74,35 @@ def signin():
 def user(username):
 
     if "user" in session:
-
-        hattes_user = Hattes.query.filter_by(user_id=session["user"]).all()
         
-        if len(hattes_user) == 0:
+        current_user = Users.query.filter_by(id=session["user"]).first()
+
+        if "follow" in request.form: #EL CURRENT USER QUIERE SEGUIR A ALGUIEN
+
+            user_tofollow = request.form["follow"]
+            other_user = Users.query.filter_by(id=user_tofollow).first()
+            
+            if user_tofollow:
+                rel = Relations(user_id=current_user.id, followed_id=user_tofollow)
+                # print("{} follows {}".format(current_user.name, other_user.name))
+                db.session.add(rel)
+                try:
+                    db.session.commit()
+                    flash("Now you Hatte {}".format(other_user.name), "success")
+                except:
+                    db.session.rollback()
+                    flash("Somethng went wrong 😫", "danger")
+
+        hattes_user = Hattes.query.filter_by(user_id=session["user"]).all() # LISTA DE MENSAJES DEL CURRENT USER
+        
+        if len(hattes_user) == 0: #PARA SABER SI EL USUARIO NO TIENE MENSAJES AUN
             status_msg = 0
         else:
             status_msg = 1
 
         if request.method == "POST":
 
-            if "hatte" in request.form:
+            if "hatte" in request.form: #PARA A GREGAR UN MENSAJE NUEVO
 
                 new_message = request.form["hatte"]
                 new_message_pic = request.form["url_pic"]
@@ -105,7 +123,7 @@ def user(username):
                     flash("Something went wrong 😯 with your Hatte", "danger")
                     return redirect(url_for(".user", username=username))
  
-            elif "name" in request.form:
+            elif "name" in request.form: #PARA SABER SI EL USUARIO QUIERE EDITAR SU CUENTA
 
                 name = request.form["name"]
                 bio = request.form["bio"]
@@ -130,13 +148,33 @@ def user(username):
                     return redirect(url_for(".user", username=username))
 
         user = Users.query.filter_by(username=username).first()
+        users_id_followed = Relations.query.filter_by(user_id=current_user.id).all() #TODOS LOS USERS QUE SIGUE EL CURRENT USER
+        no_followeds = Relations.query.filter_by(user_id=user.id).count()
+        no_followers = Relations.query.filter_by(followed_id=user.id).count()
+
+        users = db.session.query(Users).filter(user.id == Relations.user_id).filter(Relations.followed_id != Users.id).all()
+        
+        print(users)
+
+        # if len(users_id_followed) != 0: #PARA OBTENER LOS USUARIO NO QUE SIGUE EL CURRENT USER
+        #     users = []
+        #     for user_id in users_id_followed:
+        #         u = Users.query.filter( Users.id != user_id.followed_id ).first()
+        #         users.append(u)
+        #         no_followeds += 1
+        # else:
+        #     users = Users.query.all() #PARA OBTENER TODOS LOS USUARIOS REGISTRADOS
+
         context = {
             "name": user.name,
             "username": username,
             "avatar_url": user.avatar_url,
             "bio": user.bio,
             "status_msg": status_msg,
-            "hattes_user": hattes_user
+            "hattes_user": hattes_user,
+            "users": users,
+            "no_followeds": no_followeds,
+            "no_followers": no_followers
         }
 
         return render_template("user.html", **context)
