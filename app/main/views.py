@@ -84,7 +84,7 @@ def user(username):
             
             if user_tofollow:
                 rel = Relations(user_id=current_user.id, followed_id=user_tofollow)
-                # print("{} follows {}".format(current_user.name, other_user.name))
+
                 db.session.add(rel)
                 try:
                     db.session.commit()
@@ -93,16 +93,50 @@ def user(username):
                     db.session.rollback()
                     flash("Somethng went wrong 😫", "danger")
 
-        hattes_user = Hattes.query.filter_by(user_id=session["user"]).all() # LISTA DE MENSAJES DEL CURRENT USER
+        followeds_ids = Relations.query.filter_by(user_id=current_user.id).all() #TODOS LOS IDS DE LOS USUARIOS QUE SIGUE EL CURRENT USER
+
+        f_id = [u.followed_id for u in followeds_ids] #PARA OBTENER SOLO LOS IDS DE LOS USUARIOS QUE SIGUE EL CURRENT USER
+
+        hattes_user = db.session.query(Users, Hattes).order_by(Hattes.created.desc()).filter(Users.id.in_(f_id)).filter(Hattes.user_id.in_(f_id)).all()
+        # El query de arriba me trae todos los mensajes de los usuarios que sigue el current user de forma descendente
         
-        if len(hattes_user) == 0: #PARA SABER SI EL USUARIO NO TIENE MENSAJES AUN
+        t= ()
+        users_list = []
+        for u in hattes_user: # Este ciclo crea una lista de tuplas que tiene usuario con su mensaje de forma descendente
+            a, b = u
+            if a.id == b.user_id:
+                t = a, b
+                users_list.append(t)
+
+        if len(hattes_user) == 0: #PARA SABER SI EL USUARIO NO SIGUE A NADIE
             status_msg = 0
         else:
             status_msg = 1
 
         if request.method == "POST":
 
-            if "hatte" in request.form: #PARA A GREGAR UN MENSAJE NUEVO
+            if "unhatte" in request.form: #Para dejar de seguir a un usuario
+
+                unhatte_id = request.form["unhatte"]
+
+                followeds_list = Relations.query.filter_by(user_id=current_user.id).all()
+
+                for u in followeds_list:
+                    if u.followed_id == int(unhatte_id):
+                        db.session.delete(u)
+                        break
+
+                try:
+                    db.session.commit()
+                    flash("User unHatte 😛", "success")
+                    return redirect(url_for(".user", username=username))
+
+                except:
+                    db.session.rollback()
+                    flash("Something went wrong 😓")
+                    return redirect(url_for(".user", username=username))
+
+            if "hatte" in request.form: #PARA AGREGAR UN MENSAJE NUEVO
 
                 new_message = request.form["hatte"]
                 new_message_pic = request.form["url_pic"]
@@ -147,32 +181,24 @@ def user(username):
                     flash("Something went wrong 😯", "danger")
                     return redirect(url_for(".user", username=username))
 
-        user = Users.query.filter_by(username=username).first()
-        users_id_followed = Relations.query.filter_by(user_id=current_user.id).all() #TODOS LOS USERS QUE SIGUE EL CURRENT USER
-        no_followeds = Relations.query.filter_by(user_id=user.id).count()
-        no_followers = Relations.query.filter_by(followed_id=user.id).count()
+        users_id_followed = Relations.query.filter_by(user_id=current_user.id).all()
+        no_followeds = Relations.query.filter_by(user_id=current_user.id).count()
+        no_followers = Relations.query.filter_by(followed_id=current_user.id).count()
 
-        users = db.session.query(Users).filter(user.id == Relations.user_id).filter(Relations.followed_id != Users.id).all()
+        o_u = [u.followed_id for u in users_id_followed]
         
-        print(users)
+        o_u.append(current_user.id)
 
-        # if len(users_id_followed) != 0: #PARA OBTENER LOS USUARIO NO QUE SIGUE EL CURRENT USER
-        #     users = []
-        #     for user_id in users_id_followed:
-        #         u = Users.query.filter( Users.id != user_id.followed_id ).first()
-        #         users.append(u)
-        #         no_followeds += 1
-        # else:
-        #     users = Users.query.all() #PARA OBTENER TODOS LOS USUARIOS REGISTRADOS
+        other_users = db.session.query(Users).filter( Users.id.notin_(o_u) ).all()
 
         context = {
-            "name": user.name,
-            "username": username,
-            "avatar_url": user.avatar_url,
-            "bio": user.bio,
+            "name": current_user.name,
+            "username": current_user.username,
+            "avatar_url": current_user.avatar_url,
+            "bio": current_user.bio,
             "status_msg": status_msg,
-            "hattes_user": hattes_user,
-            "users": users,
+            "users_list": users_list,
+            "other_users": other_users,
             "no_followeds": no_followeds,
             "no_followers": no_followers
         }

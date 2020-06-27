@@ -78,13 +78,14 @@
             <div class="col">
                 <h3 class="mt-3">Just the Hatte</h3>
                 {% if status_msg %}
-                  {% for hatte_msg in hattes_user | reverse %}
-                    {{ macros.render_card_big(username, hatte_msg.message, avatar_url, hatte_msg.created, hatte_msg.pic) }}
+                  {% for f_user in users_list %}
+                    {% set u, msg = f_user %}
+                      {{ macros.render_card_big(u.name, msg.message, u.avatar_url, msg.created, msg.pic, u.id) }}
                   {% endfor %}
                 {% else %}
                   <div class="card bg-white-container mt-3">
                     <div class="card-body">
-                        <p class="card-text">Not Hatte Yet 🙄</p>
+                        <p class="card-text">You don't Hatte anyone yet 🙄</p>
                     </div>
                   </div>
                 {% endif %}
@@ -92,7 +93,7 @@
             </div>
             <div class="col-4">
               <h4 class="mt-3">New People</h4>
-              {% for user in users | reverse %}
+              {% for user in other_users | reverse %}
                 {% if user.username != username %} 
                   {{ macros.render_card_sm(user.name, user.bio, user.avatar_url, user.id) }}
                 {% endif %}
