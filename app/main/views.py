@@ -3,6 +3,25 @@ from ..models import db, Users, Hattes, Codes, Relations
 from flask import render_template, redirect, url_for, request, flash, session
 from sqlalchemy.exc import IntegrityError
 
+def add_hatte(new_message, new_message_pic, current_user):
+
+    new_hatte = Hattes(
+        message=new_message, 
+        pic=new_message_pic, 
+        user_id=current_user.id
+        )
+
+    db.session.add(new_hatte)
+
+    try:
+        db.session.commit()
+        flash("New Hatte sent 😎", "success")
+        return redirect(url_for(".user", username=current_user.username))
+    except:
+        db.session.rollback()
+        flash("Something went wrong 😯 with your Hatte", "danger")
+        return redirect(url_for(".user", username=currente_user.username))
+
 @main.route("/", methods=["GET", "POST"])
 def index():
     session.clear()
@@ -193,24 +212,6 @@ def user(username):
         return redirect(url_for(".login"))
 
 
-def add_hatte(new_message, new_message_pic, current_user):
-
-    new_hatte = Hattes(
-        message=new_message, 
-        pic=new_message_pic, 
-        user_id=current_user.id
-        )
-
-    db.session.add(new_hatte)
-
-    try:
-        db.session.commit()
-        flash("New Hatte sent 😎", "success")
-        return redirect(url_for(".user", username=current_user.username))
-    except:
-        db.session.rollback()
-        flash("Something went wrong 😯 with your Hatte", "danger")
-        return redirect(url_for(".user", username=currente_user.username))
 
 @main.route("/user/<username>/timeline", methods=['POST', 'GET'])
 def timeline(username):
