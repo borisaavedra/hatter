@@ -137,25 +137,10 @@ def user(username):
                     return redirect(url_for(".user", username=username))
 
             if "hatte" in request.form: #PARA AGREGAR UN MENSAJE NUEVO
-
                 new_message = request.form["hatte"]
                 new_message_pic = request.form["url_pic"]
-
-                new_hatte = Hattes(
-                    message=new_message, 
-                    pic=new_message_pic, 
-                    user_id=session["user"])
-
-                db.session.add(new_hatte)
-
-                try:
-                    db.session.commit()
-                    flash("New Hatte sent 😎", "success")
-                    return redirect(url_for(".user", username=username))
-                except:
-                    db.session.rollback()
-                    flash("Something went wrong 😯 with your Hatte", "danger")
-                    return redirect(url_for(".user", username=username))
+                add_hatte(new_message, new_message_pic, current_user)
+                return redirect(url_for(".user", username=username))
  
             elif "name" in request.form: #PARA SABER SI EL USUARIO QUIERE EDITAR SU CUENTA
 
@@ -206,3 +191,51 @@ def user(username):
         return render_template("user.html", **context)
     else:
         return redirect(url_for(".login"))
+
+
+def add_hatte(new_message, new_message_pic, current_user):
+
+    new_hatte = Hattes(
+        message=new_message, 
+        pic=new_message_pic, 
+        user_id=current_user.id
+        )
+
+    db.session.add(new_hatte)
+
+    try:
+        db.session.commit()
+        flash("New Hatte sent 😎", "success")
+        return redirect(url_for(".user", username=current_user.username))
+    except:
+        db.session.rollback()
+        flash("Something went wrong 😯 with your Hatte", "danger")
+        return redirect(url_for(".user", username=currente_user.username))
+
+@main.route("/user/<username>/timeline", methods=['POST', 'GET'])
+def timeline(username):
+
+    current_user = Users.query.filter_by(id=session["user"]).first()
+    user_hattes = Hattes.query.filter_by(user_id=current_user.id).order_by(Hattes.created.desc()).all()
+    no_followeds = Relations.query.filter_by(user_id=current_user.id).count()
+    no_followers = Relations.query.filter_by(followed_id=current_user.id).count()
+
+    if "hatte" in request.form: #PARA AGREGAR UN MENSAJE NUEVO
+
+        new_message = request.form["hatte"]
+        new_message_pic = request.form["url_pic"]
+
+        add_hatte(new_message, new_message_pic, current_user)
+        return redirect(url_for(".timeline", username=username))
+
+    context = {
+        "username": current_user.username,
+        "status_msg": 1,
+        "current_user": current_user,
+        "user_hattes": user_hattes,
+        "no_followeds": no_followeds,
+        "no_followers": no_followers
+    }
+
+    return render_template("timeline.html", **context)
+
