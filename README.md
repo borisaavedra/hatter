@@ -1,5 +1,5 @@
 
-# 🤬 Hatter
+# 🤬 [Hatter](https://hatterbs.herokuapp.com/)
 A wannabe Twitter just for hate each other written in Python
 
 ## Feature list
@@ -25,7 +25,7 @@ A wannabe Twitter just for hate each other written in Python
 * [Flask's documentation](https://flask.palletsprojects.com/en/1.1.x/): Well, this is a "must"
 * [SQLAlchemy's documentation](https://docs.sqlalchemy.org/en/13/)
 * [Flask Web Development by Miguel Grindberg](https://www.oreilly.com/library/view/flask-web-development/9781491991725/): Just to see the architecture of the project 🤠
-* [Heroku](https://hatterbs.herokuapp.com/): For deployment. Really nice 👨🏽‍💻
+* [Heroku](https://www.heroku.com/)): For deployment. Really nice 👨🏽‍💻
 
 ## Some captures of the project
 #### Hatter's Home page
